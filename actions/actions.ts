@@ -3,6 +3,12 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+interface Password {
+  website: string;
+  username: string;
+  password: string;
+}
+
 export async function addCardServer(
   cardNo: string,
   expiry: string,
@@ -41,6 +47,25 @@ export async function addCardServer(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("❌ Error adding card:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
   }
+}
+
+export async function addPasswordServer(website:string, username:string,password: Password, userId: string) {
+ const client = await clerkClient()
+ const user = await client.users.getUser(userId)
+ let cards: Password[] = []
+ if(Array.isArray(user.privateMetadata.cards)){
+  cards = user.privateMetadata.cards || []
+  cards.push(website,username,password)
+ }
+
+ await client.users.updateUserMetadata(userId, {
+  privateMetadata:{
+    cards:cards
+  },
+ })
 }
