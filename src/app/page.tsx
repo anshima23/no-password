@@ -4,13 +4,17 @@ import AddPassword from "@/components/AddPassword";
 import YourCards from "@/components/YourCards";
 import YourPasswords from "@/components/YourPasswords";
 import { Metadata } from "next";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const metadata: Metadata = {
   title: "NoPass - Home",
   description: "This is the homepage of my password manager",
 };
 
-export default function Home() {
+
+export default async function Home() {
+  const user = await currentUser()
+console.log(user?.privateMetadata)
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold text-center mb-8 text-primary">
@@ -40,7 +44,7 @@ export default function Home() {
             <CardTitle>Your Cards</CardTitle>
           </CardHeader>
           <CardContent>
-            <YourCards />
+            <YourCards cards={Array.isArray(user?.privateMetadata.cards)?user?.privateMetadata.cards:[]} />
           </CardContent>
         </Card>
         <Card>
@@ -48,7 +52,7 @@ export default function Home() {
             <CardTitle>Your Passwords</CardTitle>
           </CardHeader>
           <CardContent>
-            <YourPasswords />
+           {/* <YourPasswords passwords={user?.privateMetadata.passwords}/>*/}
           </CardContent>
         </Card>
       </div>
