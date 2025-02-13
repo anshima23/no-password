@@ -1,13 +1,35 @@
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { clerkClient } from "@clerk/clerk-sdk-node"; // ✅ Correct import
 
 export async function POST(req: Request) {
-  try {
-    const data = await req.json();
-    console.log("📌 Received Data in API Route:", data);
+  const authData = await auth();
+  const userId = authData.userId;
 
-    return NextResponse.json({ success: true, data });
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    // Parse request body
+    const { cardNumber, cardHolder, expiryDate, cvv, cardType } = await req.json();
+
+    // Fetch current user details
+    const user = await currentUser();
+
+    // Ensure existing card data is an array
+    const existingCards = Array.isArray(user?.privateMetadata?.cards) ? user.privateMetadata.cards : [];
+
+    // Save card details in Clerk's private metadata
+    await clerkClient.users.updateUser(userId, {  // ✅ Corrected `clerkClient.users.updateUser`
+      privateMetadata: {
+        ...user?.privateMetadata, // Preserve existing data
+        cards: [...existingCards, { cardNumber, cardHolder, expiryDate, cvv, cardType }], // Add new card
+      },
+    });
+
+    return NextResponse.json({ success: true, message: "Card added successfully!" });
   } catch (error) {
-    console.error("❌ API Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to add card", details: error.message }, { status: 500 });
   }
 }

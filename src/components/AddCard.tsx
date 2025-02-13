@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";  
 
 export default function AddCard() {
+  const { getToken, isSignedIn } = useAuth();  // ✅ Get Clerk token for authentication
+
   const [cardData, setCardData] = useState({
     cardNumber: "",
     cardHolder: "",
@@ -12,27 +15,49 @@ export default function AddCard() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCardData({ ...cardData, [e.target.name]: e.target.value });
+    setCardData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("🛠️ Form Data Before Sending:", cardData); // ✅ Log Form Data in Console
+    console.log("🛠️ Form Data Before Sending:", cardData);
+
+    if (!isSignedIn) {
+      alert("You must be signed in to add a card.");
+      return;
+    }
 
     try {
+      const token = await getToken();  
+      if (!token) {
+        alert("Authentication token missing.");
+        return;
+      }
+
       const response = await fetch("/api/addCard", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, 
         },
         body: JSON.stringify(cardData),
       });
 
       const result = await response.json();
       console.log("✅ Server Response:", result);
+
+      if (!result.success) {
+        alert(`Error: ${result.error}`);
+      } else {
+        alert("Card added successfully!");
+      }
     } catch (error) {
       console.error("❌ Error submitting form:", error);
+      alert("An error occurred. Please try again.");
     }
   };
 

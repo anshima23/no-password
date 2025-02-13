@@ -1,11 +1,7 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  reactStrictMode: true, // ✅ Helps catch potential issues in development
-  swcMinify: true,       // ✅ Optimizes JS for faster performance
-  experimental: {
-    appDir: true,        // ✅ Enables Next.js App Router
-  },
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {}, // Remove 'appDir' if present
+  reactStrictMode: true,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
