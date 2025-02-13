@@ -1,37 +1,26 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { clerkClient } from "@clerk/clerk-sdk-node"; // ✅ Correct import
+import { clerkClient } from "@clerk/clerk-sdk-node";
 
-export async function POST(req: Request) {
-  const authData = await auth();
-  const userId = authData.userId;
-
+export async function POST(req) {
+  const { userId } = auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
   try {
-    // Parse request body
     const { website, username, password } = await req.json();
+    const user = await clerkClient.users.getUser(userId);
+    const existingPasswords = Array.isArray(user.privateMetadata.passwords) ? user.privateMetadata.passwords : [];
 
-    // Fetch current user details
-    const user = await currentUser();
-
-    // Ensure existing passwords data is an array
-    const existingPasswords = Array.isArray(user?.privateMetadata?.passwords)
-      ? user.privateMetadata.passwords
-      : [];
-
-    // Save password details in Clerk's private metadata
     await clerkClient.users.updateUser(userId, {
       privateMetadata: {
-        ...user?.privateMetadata, // Preserve existing data
-        passwords: [...existingPasswords, { website, username, password }], // Add new password entry
+        ...user.privateMetadata,
+        passwords: [...existingPasswords, { website, username, password }],
       },
     });
 
-    return NextResponse.json({ success: true, message: "Password added successfully!" });
+    return NextResponse.json({ success: true, message: "Password saved successfully!" });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to add password", details: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to save password", details: error.message }, { status: 500 });
   }
 }
