@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { toast } from "react-hot-toast"; // ✅ Import from react-hot-toast
+import { toast } from "react-hot-toast";
+import { CreditCard, User, Calendar, Lock, CreditCardIcon } from 'lucide-react';
 
 export default function AddCard() {
   const { getToken, isSignedIn } = useAuth();  
@@ -15,14 +16,14 @@ export default function AddCard() {
     cardType: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setCardData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isSignedIn) {
@@ -47,14 +48,11 @@ export default function AddCard() {
       });
 
       const result = await response.json();
-      console.log("✅ Server Response:", result);
 
       if (!result.success) {
         toast.error(`Error: ${result.error}`);
       } else {
         toast.success("Card Added Successfully! 🎉");
-
-        // Reset form after success
         setCardData({
           cardNumber: "",
           cardHolder: "",
@@ -64,19 +62,43 @@ export default function AddCard() {
         });
       }
     } catch (error) {
-      console.error("❌ Error submitting form:", error);
       toast.error("An error occurred. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="cardNumber" placeholder="Card Number" onChange={handleChange} value={cardData.cardNumber} />
-      <input type="text" name="cardHolder" placeholder="Card Holder Name" onChange={handleChange} value={cardData.cardHolder} />
-      <input type="text" name="expiryDate" placeholder="Expiry Date (MM/YY)" onChange={handleChange} value={cardData.expiryDate} />
-      <input type="password" name="cvv" placeholder="CVV" onChange={handleChange} value={cardData.cvv} />
-      <input type="text" name="cardType" placeholder="Card Type (Visa, MasterCard)" onChange={handleChange} value={cardData.cardType} />
-      <button type="submit">Add Card</button>
-    </form>
+    <div className="max-w-lg mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-6 m-4 border border-white/20">
+      <h2 className="text-xl font-semibold text-white text-center mb-4">Add New Card</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {[
+          { label: "Card Number", name: "cardNumber", icon: <CreditCard className="h-5 w-5 text-gray-400" />, placeholder: "1234 5678 9012 3456" },
+          { label: "Card Holder", name: "cardHolder", icon: <User className="h-5 w-5 text-gray-400" />, placeholder: "John Doe" },
+          { label: "Expiry Date", name: "expiryDate", icon: <Calendar className="h-5 w-5 text-gray-400" />, placeholder: "MM/YY" },
+          { label: "CVV", name: "cvv", icon: <Lock className="h-5 w-5 text-gray-400" />, placeholder: "123", type: "password" },
+          { label: "Card Type", name: "cardType", icon: <CreditCardIcon className="h-5 w-5 text-gray-400" />, placeholder: "Visa, MasterCard, etc." },
+        ].map(({ label, name, icon, placeholder, type = "text" }) => (
+          <div key={name}>
+            <label className="block text-sm font-medium text-black dark:text-white">{label}</label>
+            <div className="mt-1 relative rounded-md">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center">{icon}</div>
+              <input
+                type={type}
+                name={name}
+                className="bg-transparent border border-white/20 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 py-2 rounded-lg text-white placeholder-gray-300"
+                placeholder={placeholder}
+                onChange={handleChange}
+                value={cardData[name]}
+              />
+            </div>
+          </div>
+        ))}
+        <button
+          type="submit"
+          className="w-full bg-blue-500 hover:bg-blue-600 transition-colors py-2 rounded-lg text-white font-semibold"
+        >
+          Add Card
+        </button>
+      </form>
+    </div>
   );
 }

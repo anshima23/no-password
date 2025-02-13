@@ -21,12 +21,8 @@ export default function YourPasswords() {
       try {
         const token = await getToken(); // ✅ Fetch token
         if (!token) {
-          console.log("Token not available");
           return;
         }
-
-        console.log("Sending request with token:", token);
-
         const response = await fetch("/api/getPasswords", {
           method: "GET",
           headers: {
@@ -36,18 +32,18 @@ export default function YourPasswords() {
         });
 
         if (!response.ok) {
-          console.error("Error response:", response.status, await response.text());
+          
           return;
         }
 
         const result = await response.json();
-        console.log("Received passwords:", result.passwords);
+       
 
         if (result.success) {
           setPasswords(result.passwords);
         }
       } catch (error) {
-        console.error("Error fetching passwords:", error);
+       
       } finally {
         setLoading(false);
       }

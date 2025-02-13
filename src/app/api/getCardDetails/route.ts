@@ -14,7 +14,6 @@ export async function GET() {
 
     return NextResponse.json({ success: true, cardDetails: cardData });
   } catch (error) {
-    console.error("❌ API Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
