@@ -1,19 +1,21 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import AddCard from "@/components/AddCard"
-import AddPassword from "@/components/AddPassword"
-import YourCards from "@/components/YourCards"
-import YourPasswords from "@/components/YourPasswords"
-import {Metadata} from "next"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AddCard from "@/components/AddCard";
+import AddPassword from "@/components/AddPassword";
+import YourCards from "@/components/YourCards";
+import YourPasswords from "@/components/YourPasswords";
+import { Metadata } from "next";
 
-export const metadata: Metadata={
-  title: 'NoPass - Home',
-  description: 'This is homepage of my password manager',
-}
+export const metadata: Metadata = {
+  title: "NoPass - Home",
+  description: "This is the homepage of my password manager",
+};
 
 export default function Home() {
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center mb-8 text-primary">Password Manager</h1>
+      <h1 className="text-4xl font-bold text-center mb-8 text-primary">
+        Password Manager
+      </h1>
       <div className="grid md:grid-cols-2 gap-8">
         <Card>
           <CardHeader>
@@ -51,6 +53,5 @@ export default function Home() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

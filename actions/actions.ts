@@ -11,25 +11,36 @@ export async function addCardServer(
 ) {
   console.log("✅ addCardServer function is running!"); // Check if function is triggered
 
-  const user = await clerkClient.users.getUser(userId);
-  console.log("📌 Fetched user:", user); // Log user data
+  try {
+    // Fetch the user from Clerk
+    const user = await clerkClient.users.getUser(userId);
 
-  let passwords: { cardNo: string; expiry: string; cvv: number }[] = [];
+    console.log("📌 Fetched user:", user); // Log user data
 
-  if (Array.isArray(user.privateMetadata.passwords)) {
-    passwords = user.privateMetadata.passwords; // Fix incorrect assignment syntax
+    let passwords: { cardNo: string; expiry: string; cvv: number }[] = [];
+
+    // Ensure privateMetadata.passwords exists and is an array
+    if (Array.isArray(user.privateMetadata.passwords)) {
+      passwords = user.privateMetadata.passwords;
+    }
+
+    // Push the new card details
+    passwords.push({ cardNo, expiry, cvv });
+
+    console.log("🔐 Updated passwords array:", passwords);
+
+    // Update the user metadata with new passwords array
+    await clerkClient.users.updateUserMetadata(userId, {
+      privateMetadata: {
+        passwords: passwords,
+      },
+    });
+
+    console.log("✅ User metadata updated successfully!");
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("❌ Error adding card:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-  passwords.push({ cardNo, expiry, cvv });
-
-  console.log("🔐 Updated passwords array:", passwords); // Check new passwords array
-
-  await clerkClient.users.updateUserMetadata(userId, {
-    privateMetadata: {
-      passwords: passwords,
-    },
-  });
-
-  console.log("✅ User metadata updated successfully!");
-
-  return NextResponse.json({ success: true });
 }
