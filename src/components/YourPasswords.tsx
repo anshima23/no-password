@@ -1,9 +1,10 @@
 "use client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface PasswordProps {
+  id: string;
   website: string;
   username: string;
   password: string;
@@ -14,43 +15,41 @@ export default function YourPasswords() {
   const [passwords, setPasswords] = useState<PasswordProps[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPasswords = async () => {
-      if (!isSignedIn) return;
+  // ✅ Wrap `fetchPasswords` in `useCallback` to avoid unnecessary re-renders
+  const fetchPasswords = useCallback(async () => {
+    if (!isSignedIn) return;
 
-      try {
-        const token = await getToken(); // ✅ Fetch token
-        if (!token) {
-          return;
-        }
-        const response = await fetch("/api/getPasswords", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+    try {
+      const token = await getToken();
+      if (!token) return;
 
-        if (!response.ok) {
-          
-          return;
-        }
+      const response = await fetch("/api/getPasswords", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-        const result = await response.json();
-       
-
-        if (result.success) {
-          setPasswords(result.passwords);
-        }
-      } catch (error) {
-       
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
       }
-    };
 
+      const result = await response.json();
+
+      if (result.success) {
+        setPasswords(result.passwords);
+      }
+    } catch (error) {
+      console.error("Failed to fetch passwords:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [isSignedIn, getToken]); // ✅ Stable dependencies
+
+  useEffect(() => {
     fetchPasswords();
-  }, [isSignedIn]);
+  }, [fetchPasswords]); // ✅ Uses `fetchPasswords`, which has stable dependencies
 
   if (!isSignedIn) {
     return <p className="text-red-500">You must be signed in to view saved passwords.</p>;
@@ -74,7 +73,7 @@ export default function YourPasswords() {
           </TableRow>
         ) : passwords.length > 0 ? (
           passwords.map((item) => (
-            <TableRow key={item.website}>
+            <TableRow key={item.id}>
               <TableCell>{item.website}</TableCell>
               <TableCell>{item.username}</TableCell>
               <TableCell>••••••••</TableCell>
