@@ -62,6 +62,7 @@ export default function AddCard() {
         });
       }
     } catch (error) {
+      console.error(error); // 👈 Logs the error to avoid ESLint warning
       toast.error("An error occurred. Please try again.");
     }
   };
