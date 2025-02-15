@@ -52,7 +52,7 @@ console.log(user?.privateMetadata)
             <CardTitle>Your Passwords</CardTitle>
           </CardHeader>
           <CardContent>
-            <YourPasswords passwords={Array.isArray(user?.privateMetadata.passwords)?user?.privateMetadata.password:[]}/>
+          <YourPasswords passwords={Array.isArray(user?.privateMetadata.passwords) ? user?.privateMetadata.passwords : []} />
           </CardContent>
         </Card>
       </div>

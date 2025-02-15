@@ -13,7 +13,8 @@ export async function GET() {
     const cardData = user.publicMetadata.cardDetails || {};
 
     return NextResponse.json({ success: true, cardDetails: cardData });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

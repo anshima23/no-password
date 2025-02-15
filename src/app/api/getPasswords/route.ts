@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server"; // ✅ Correct Clerk import for API routes
 import { headers } from "next/headers"; // ✅ Import headers from next/headers
-import { clerkClient } from "@clerk/nextjs"; // ✅ Import clerkClient for user data
 
 export async function GET() {
   try {
-    const requestHeaders = headers();
-    const authToken = requestHeaders.get("Authorization");
+    const requestHeaders = await headers(); // ✅ Await the headers() function
+    const authToken = requestHeaders.get("Authorization"); // ✅ Now we can use .get()
 
     if (!authToken) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -21,7 +20,8 @@ export async function GET() {
     const passwordData = user.privateMetadata?.passwords || [];
 
     return NextResponse.json({ success: true, passwords: passwordData });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

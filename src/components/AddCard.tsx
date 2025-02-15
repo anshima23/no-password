@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "react-hot-toast";
-import { CreditCard, User, Calendar, Lock, CreditCardIcon } from 'lucide-react';
+import { CreditCard, User, Calendar, Lock, CreditCardIcon } from "lucide-react";
 
 export default function AddCard() {
-  const { getToken, isSignedIn } = useAuth();  
+  const { getToken, isSignedIn } = useAuth();
 
   const [cardData, setCardData] = useState({
     cardNumber: "",
@@ -16,14 +16,14 @@ export default function AddCard() {
     cardType: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCardData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!isSignedIn) {
@@ -87,7 +87,7 @@ export default function AddCard() {
                 className="bg-transparent border border-white/20 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 py-2 rounded-lg text-white placeholder-gray-300"
                 placeholder={placeholder}
                 onChange={handleChange}
-                value={cardData[name]}
+                value={cardData[name as keyof typeof cardData]}
               />
             </div>
           </div>

@@ -29,7 +29,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, message: "Card added successfully!" });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to add card", details: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ error: "Failed to add card", details: errorMessage }, { status: 500 });
   }
 }
