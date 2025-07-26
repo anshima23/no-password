@@ -7,7 +7,6 @@ interface Password {
   password: string;
 }
 
-// ✅ Save Card
 export async function addCardServer(
   cardNo: string,
   expiry: string,
@@ -15,7 +14,9 @@ export async function addCardServer(
   userId: string
 ) {
   try {
-    const user = await clerkClient.users.getUser(userId); // ✅ no await clerkClient()
+    const client = await clerkClient(); // ✅ get actual client
+    const user = await client.users.getUser(userId);
+
     let cards: { cardNo: string; expiry: string; cvv: number }[] = [];
 
     if (Array.isArray(user.privateMetadata.cards)) {
@@ -24,7 +25,7 @@ export async function addCardServer(
 
     cards.push({ cardNo, expiry, cvv });
 
-    await clerkClient.users.updateUserMetadata(userId, {
+    await client.users.updateUserMetadata(userId, {
       privateMetadata: {
         cards: cards,
       },
