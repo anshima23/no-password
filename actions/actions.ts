@@ -9,6 +9,7 @@ interface Password {
   password: string;
 }
 
+// ✅ Save Card
 export async function addCardServer(
   cardNo: string,
   expiry: string,
@@ -16,20 +17,23 @@ export async function addCardServer(
   userId: string
 ) {
   try {
-    const client = clerkClient(); // ← Call it to get the actual client
-const user = await client.users.getUser(userId); // ✅ Now this works
-    let passwords: { cardNo: string; expiry: string; cvv: number }[] = [];
-    if (Array.isArray(user.privateMetadata.passwords)) {
-      passwords = user.privateMetadata.passwords;
+    const user = await clerkClient.users.getUser(userId);
+    let cards: { cardNo: string; expiry: string; cvv: number }[] = [];
+
+    if (Array.isArray(user.privateMetadata.cards)) {
+      cards = user.privateMetadata.cards;
     }
-    passwords.push({ cardNo, expiry, cvv });
+
+    cards.push({ cardNo, expiry, cvv });
+
     await clerkClient.users.updateUserMetadata(userId, {
       privateMetadata: {
-        passwords: passwords,
+        cards: cards,
       },
     });
+
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -37,18 +41,35 @@ const user = await client.users.getUser(userId); // ✅ Now this works
   }
 }
 
-export async function addPasswordServer(website:string, username:string,password: Password, userId: string) {
- const client = await clerkClient()
- const user = await client.users.getUser(userId)
- let cards: Password[] = []
- if(Array.isArray(user.privateMetadata.cards)){
-  cards = user.privateMetadata.cards || []
-  cards.push(website,username,password)
- }
+// ✅ Save Password
+export async function addPasswordServer(
+  website: string,
+  username: string,
+  password: string,
+  userId: string
+) {
+  try {
+    const user = await clerkClient.users.getUser(userId);
 
- await client.users.updateUserMetadata(userId, {
-  privateMetadata:{
-    cards:cards
-  },
- })
+    let passwords: Password[] = [];
+
+    if (Array.isArray(user.privateMetadata.passwords)) {
+      passwords = user.privateMetadata.passwords;
+    }
+
+    passwords.push({ website, username, password });
+
+    await clerkClient.users.updateUserMetadata(userId, {
+      privateMetadata: {
+        passwords: passwords,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
 }
