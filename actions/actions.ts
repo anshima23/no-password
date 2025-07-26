@@ -17,7 +17,8 @@ export async function addCardServer(
   userId: string
 ) {
   try {
-    const user = await clerkClient.users.getUser(userId);
+    const client = await clerkClient(); // FIXED
+    const user = await client.users.getUser(userId);
     let cards: { cardNo: string; expiry: string; cvv: number }[] = [];
 
     if (Array.isArray(user.privateMetadata.cards)) {
