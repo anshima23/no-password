@@ -1,5 +1,3 @@
-"use server";
-
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -17,8 +15,7 @@ export async function addCardServer(
   userId: string
 ) {
   try {
-    const client = await clerkClient(); // FIXED
-    const user = await client.users.getUser(userId);
+    const user = await clerkClient.users.getUser(userId); // ✅ no await clerkClient()
     let cards: { cardNo: string; expiry: string; cvv: number }[] = [];
 
     if (Array.isArray(user.privateMetadata.cards)) {
@@ -30,39 +27,6 @@ export async function addCardServer(
     await clerkClient.users.updateUserMetadata(userId, {
       privateMetadata: {
         cards: cards,
-      },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-// ✅ Save Password
-export async function addPasswordServer(
-  website: string,
-  username: string,
-  password: string,
-  userId: string
-) {
-  try {
-    const user = await clerkClient.users.getUser(userId);
-
-    let passwords: Password[] = [];
-
-    if (Array.isArray(user.privateMetadata.passwords)) {
-      passwords = user.privateMetadata.passwords;
-    }
-
-    passwords.push({ website, username, password });
-
-    await clerkClient.users.updateUserMetadata(userId, {
-      privateMetadata: {
-        passwords: passwords,
       },
     });
 
