@@ -16,7 +16,8 @@ export async function addCardServer(
   userId: string
 ) {
   try {
-    const user = await clerkClient.users.getUser(userId);
+    const client = clerkClient(); // ← Call it to get the actual client
+const user = await client.users.getUser(userId); // ✅ Now this works
     let passwords: { cardNo: string; expiry: string; cvv: number }[] = [];
     if (Array.isArray(user.privateMetadata.passwords)) {
       passwords = user.privateMetadata.passwords;
