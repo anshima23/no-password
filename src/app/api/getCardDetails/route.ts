@@ -9,7 +9,8 @@ export async function GET() {
       return NextResponse.json({ success: false, error: "User not authenticated" }, { status: 401 });
     }
 
-    const user = await clerkClient.users.getUser(userId);
+     const client = await clerkClient(); // Await the client
+    const user = await client.users.getUser(userId); // Now use it properly
     const cardData = user.publicMetadata.cardDetails || {};
 
     return NextResponse.json({ success: true, cardDetails: cardData });
