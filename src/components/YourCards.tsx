@@ -1,14 +1,22 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-
-interface CardProps{
-  cardNumber:string,
-  expiryDate:string,
-  cvv:number
+interface CardProps {
+  cardNumber: string;
+  expiryDate: string;
+  cvv: number;
 }
-export default function YourCards({cards}:{cards:CardProps[]}) {
-  // This is a placeholder. You'll need to fetch actual card data from your database.
-  
+
+export default function YourCards({ cards }: { cards: CardProps[] }) {
+  if (!cards || cards.length === 0) {
+    return <p className="text-center text-gray-500">No cards added yet.</p>;
+  }
 
   return (
     <Table>
@@ -16,11 +24,12 @@ export default function YourCards({cards}:{cards:CardProps[]}) {
         <TableRow>
           <TableHead>Card Number</TableHead>
           <TableHead>Expiry Date</TableHead>
+          <TableHead>CVV</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {cards.map((card: CardProps) => (
-          <TableRow key={card.cardNumber}>
+        {cards.map((card: CardProps, index: number) => (
+          <TableRow key={index}>
             <TableCell>{card.cardNumber}</TableCell>
             <TableCell>{card.expiryDate}</TableCell>
             <TableCell>{card.cvv}</TableCell>
@@ -28,6 +37,5 @@ export default function YourCards({cards}:{cards:CardProps[]}) {
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }
-
