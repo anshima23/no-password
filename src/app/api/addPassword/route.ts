@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
 export async function POST(req: Request) {
-  const authData = auth();
+  const authData = await auth(); // ✅ fix: await the auth() call
   const userId = authData.userId;
 
   if (!userId) {
@@ -12,8 +12,12 @@ export async function POST(req: Request) {
 
   try {
     const { website, username, password } = await req.json();
+
     const user = await clerkClient.users.getUser(userId);
-    const existingPasswords = Array.isArray(user.privateMetadata.passwords) ? user.privateMetadata.passwords : [];
+
+    const existingPasswords = Array.isArray(user.privateMetadata.passwords)
+      ? user.privateMetadata.passwords
+      : [];
 
     await clerkClient.users.updateUser(userId, {
       privateMetadata: {
@@ -22,9 +26,16 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Password saved successfully!" });
+    return NextResponse.json({
+      success: true,
+      message: "Password saved successfully!",
+    });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    return NextResponse.json({ error: "Failed to save password", details: errorMessage }, { status: 500 });
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json(
+      { error: "Failed to save password", details: errorMessage },
+      { status: 500 }
+    );
   }
 }
