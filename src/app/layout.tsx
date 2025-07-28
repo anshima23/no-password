@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider fallbackRedirectUrl="/" forceRedirectUrl="/dashboard">
+    <ClerkProvider afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard">
       <html lang="en" suppressHydrationWarning>
         <body>
           <ThemeProvider
